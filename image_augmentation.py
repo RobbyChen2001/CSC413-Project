@@ -3,9 +3,7 @@ import pathlib
 import re
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import numpy as np
 import cv2
-
 
 zse_sbir_dir = "./ZSE-SBIR"
 datasets = {"QuickDraw": {}, "Sketchy": {}, "TUBerlin": {}}
@@ -26,7 +24,7 @@ for ds in datasets.keys():
                         img_path_in_class = re.search(r"(.*) ", line).group(1)
                         class_name = img_path_in_class.split("/")[-2]
                         img_full_path = os.path.join("./dataset", ds, img_path_in_class)
-                        #Dictionary {dataset: {class: image}...}
+                        # Dictionary {dataset: {class: image}...}
                         if class_name not in datasets[ds]:
                             datasets[ds][class_name] = {img_full_path}
                         datasets[ds][class_name].add(img_full_path)
@@ -42,13 +40,13 @@ if not os.path.exists(da_dir):
 else:
     augment_dir = pathlib.Path(os.path.join(da_dir, augment_type))
 
-
 for ds_name, ds_set in datasets.items():
     ds_num = 3
     for class_name in ds_set.keys():
         for img_full_path in ds_set[class_name]:
             if ds_num > 0:
                 print(ds_name, class_name, img_full_path)
+                # Show original image
                 # img = mpimg.imread(img_full_path)
                 # imgplot = plt.imshow(img)
                 # plt.show()
@@ -57,10 +55,12 @@ for ds_name, ds_set in datasets.items():
                 original = cv2.imread(img_full_path, cv2.IMREAD_UNCHANGED)
                 # Apply Gaussian blur
                 augmented = cv2.GaussianBlur(original, (5, 5), cv2.BORDER_DEFAULT)
-                cv2.imwrite(os.path.join(augmented_path, img_full_path.split("/")[-1]), augmented)
-                # os.chmod(os.path.join(augmented_path, img_full_path.split("/")[-1]), 777)
+                augmented_path = os.path.join(augmented_path, img_full_path.split("/")[-1])
+                cv2.imwrite(augmented_path, augmented)
+
+                # Display augmented image
                 # img = mpimg.imread(augmented_path)
                 # imgplot = plt.imshow(img)
                 # plt.show()
 
-            ds_num -= 1
+            # ds_num -= 1
