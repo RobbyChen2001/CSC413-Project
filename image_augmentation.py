@@ -16,13 +16,14 @@ da_dir = "./data-augmentation"
 def makeAugPath(augment_type, augment_dir):
     if not os.path.exists(da_dir):
         os.makedirs(da_dir)
-        augment_dir = pathlib.Path(os.path.join(augment_dir, augment_type))
+        augment_dir = pathlib.Path(str(os.path.join(augment_dir, augment_type)))
         if not os.path.exists(augment_dir):
             os.makedirs(augment_dir)
             for ds in datasets.keys():
                 os.makedirs(pathlib.Path(os.path.join(augment_dir, ds)))
     augment_dir = pathlib.Path(os.path.join(da_dir, augment_type))
     return augment_dir
+
 
 # Fill datasets set & its dictionary
 def getTestData():
@@ -43,6 +44,7 @@ def getTestData():
                                 datasets[ds][class_name] = {img_full_path}
                             datasets[ds][class_name].add(img_full_path)
 
+
 def addGaussianBlur():
     augment_dir = da_dir
     augment_dir = makeAugPath("gaussian-noise", augment_dir)
@@ -60,7 +62,7 @@ def addGaussianBlur():
                 # Apply Gaussian blur
                 augmented = cv2.GaussianBlur(original, (5, 5), cv2.BORDER_DEFAULT)
 
-                #Insert to data augmentation folder
+                # Insert to data augmentation folder
                 augmented_path = os.path.join(augmented_path, class_name)
                 if not os.path.exists(augmented_path):
                     os.makedirs(augmented_path)
@@ -71,5 +73,6 @@ def addGaussianBlur():
                 # img = mpimg.imread(augmented_path)
                 # imgplot = plt.imshow(img)
                 # plt.show()
+
 
 addGaussianBlur()
