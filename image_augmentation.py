@@ -4,6 +4,9 @@ import re
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import cv2
+import albumentations as A
+from albumentations.core.composition import Compose
+
 
 zse_sbir_dir = "./ZSE-SBIR"
 datasets = {"QuickDraw": {}, "Sketchy": {}, "TUBerlin": {}}
@@ -75,4 +78,45 @@ def addGaussianBlur():
                 # plt.show()
 
 
-addGaussianBlur()
+def augmentData(augment_type = ["gaussian-noise", "rotation", "translation"]):
+    augment_dir = da_dir
+    augment_dir = makeAugPath(augment_type, augment_dir)
+    getTestData()
+    for ds_name, ds_set in datasets.items():
+        for class_name in ds_set.keys():
+            for img_full_path in ds_set[class_name]:
+                # Show original image
+                # img = mpimg.imread(img_full_path)
+                # imgplot = plt.imshow(img)
+                # plt.show()
+
+                augmented_path = pathlib.Path(os.path.join(augment_dir, ds_name))
+                original = cv2.imread(img_full_path, cv2.IMREAD_UNCHANGED)
+                
+                # Apply augmentation
+                if augment_type == "gaussian-noise":
+                    augmented = cv2.GaussianBlur(original, (5, 5), cv2.BORDER_DEFAULT)
+                elif augment_type == "rotation":
+                    transform = Compose([A.Rotate(limit=90, p=1)])
+                    augmented = transform(image=original)['image']
+                elif augment_type == "translation":
+                    transform = Compose([A.ShiftScaleRotate(shift_limit=0.3, scale_limit=0, rotate_limit=0, p=1)])
+                    augmented = transform(image=original)['image']
+
+                # Insert to data augmentation folder
+                augmented_path = os.path.join(augmented_path, class_name)
+                if not os.path.exists(augmented_path):
+                    os.makedirs(augmented_path)
+                augmented_path = os.path.join(augmented_path, img_full_path.split("/")[-1])
+                cv2.imwrite(augmented_path, augmented)
+
+                # Display augmented image
+                # img = mpimg.imread(augmented_path)
+                # imgplot = plt.imshow(img)
+                # plt.show()
+                                
+                
+
+if __name__ == '__main__':
+    augmentData(augment_type = "rotation")
+
