@@ -48,37 +48,36 @@ def getTestData():
                             datasets[ds][class_name].add(img_full_path)
 
 
-def addGaussianBlur():
-    augment_dir = da_dir
-    augment_dir = makeAugPath("gaussian-noise", augment_dir)
-    getTestData()
-    for ds_name, ds_set in datasets.items():
-        for class_name in ds_set.keys():
-            for img_full_path in ds_set[class_name]:
-                # Show original image
-                # img = mpimg.imread(img_full_path)
-                # imgplot = plt.imshow(img)
-                # plt.show()
+# def addGaussianBlur():
+#     augment_dir = da_dir
+#     augment_dir = makeAugPath("gaussian-noise", augment_dir)
+#     getTestData()
+#     for ds_name, ds_set in datasets.items():
+#         for class_name in ds_set.keys():
+#             for img_full_path in ds_set[class_name]:
+#                 # Show original image
+#                 # img = mpimg.imread(img_full_path)
+#                 # imgplot = plt.imshow(img)
+#                 # plt.show()
 
-                augmented_path = pathlib.Path(os.path.join(augment_dir, ds_name))
-                original = cv2.imread(img_full_path, cv2.IMREAD_UNCHANGED)
-                # Apply Gaussian blur
-                augmented = cv2.GaussianBlur(original, (5, 5), cv2.BORDER_DEFAULT)
+#                 augmented_path = pathlib.Path(os.path.join(augment_dir, ds_name))
+#                 original = cv2.imread(img_full_path, cv2.IMREAD_UNCHANGED)
+#                 # Apply Gaussian blur
+#                 augmented = cv2.GaussianBlur(original, (5, 5), cv2.BORDER_DEFAULT)
 
-                # Insert to data augmentation folder
-                augmented_path = os.path.join(augmented_path, class_name)
-                if not os.path.exists(augmented_path):
-                    os.makedirs(augmented_path)
-                augmented_path = os.path.join(augmented_path, img_full_path.split("/")[-1])
-                cv2.imwrite(augmented_path, augmented)
+#                 # Insert to data augmentation folder
+#                 augmented_path = os.path.join(augmented_path, class_name)
+#                 if not os.path.exists(augmented_path):
+#                     os.makedirs(augmented_path)
+#                 augmented_path = os.path.join(augmented_path, img_full_path.split("/")[-1])
+#                 cv2.imwrite(augmented_path, augmented)
 
-                # Display augmented image
-                # img = mpimg.imread(augmented_path)
-                # imgplot = plt.imshow(img)
-                # plt.show()
+#                 # Display augmented image
+#                 # img = mpimg.imread(augmented_path)
+#                 # imgplot = plt.imshow(img)
+#                 # plt.show()
 
-
-def augmentData(augment_type = ["gaussian-noise", "rotation", "translation"]):
+def augmentData(augment_type):
     augment_dir = da_dir
     augment_dir = makeAugPath(augment_type, augment_dir)
     getTestData()
