@@ -188,7 +188,7 @@ class Self_Attention(nn.Module):
             emb_dropout=0.1
         )
         if pretrained:
-            checkpoint = torch.load("/content/CSC413-Project/model/sam_ViT-B_16.pth")
+            checkpoint = torch.load("/content/CSC413-Project/ZSE-SBIR/model/sam_ViT-B_16.pth")
             cur = self.model.state_dict()
             new = {k: v for k, v in checkpoint.items() if k in cur.keys() and 'mlp_head' not in k}
             cur.update(new)
