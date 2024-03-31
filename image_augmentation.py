@@ -6,26 +6,29 @@ import matplotlib.image as mpimg
 import cv2
 import albumentations as A
 from albumentations.core.composition import Compose
+import numpy as np
+from scipy.ndimage import convolve
+from scipy.ndimage import gaussian_filter
+from PIL import Image
 
 
 zse_sbir_dir = "./ZSE-SBIR"
 datasets = {"QuickDraw": {}, "Sketchy": {}, "TUBerlin": {}}
 
 zs_dataset_dir = os.path.join(zse_sbir_dir, "datasets")
-da_dir = "./data-augmentation"
+da_dir = "./dataset"
 
 
 # Create folders for the augmented data
-def makeAugPath(augment_type, augment_dir):
+def makeAugPath(augment_type):
     if not os.path.exists(da_dir):
-        os.makedirs(da_dir)
-        augment_dir = pathlib.Path(str(os.path.join(augment_dir, augment_type)))
-        if not os.path.exists(augment_dir):
-            os.makedirs(augment_dir)
-            for ds in datasets.keys():
-                os.makedirs(pathlib.Path(os.path.join(augment_dir, ds)))
-    augment_dir = pathlib.Path(os.path.join(da_dir, augment_type))
-    return augment_dir
+        for ds in datasets.keys():
+            augment_dir = pathlib.Path(str(os.path.join(da_dir, ds)))
+            augment_dir = pathlib.Path(str(os.path.join(augment_dir, str(augment_type))))
+            if not os.path.exists(augment_dir):
+                os.makedirs(augment_dir)
+    # augment_dir = pathlib.Path(os.path.join(da_dir, augment_type))
+    # return augment_dir
 
 
 # Fill datasets set & its dictionary
@@ -78,8 +81,7 @@ def getTestData():
 #                 # plt.show()
 
 def augmentData(augment_type):
-    augment_dir = da_dir
-    augment_dir = makeAugPath(augment_type, augment_dir)
+    makeAugPath(augment_type)
     getTestData()
     for ds_name, ds_set in datasets.items():
         for class_name in ds_set.keys():
@@ -89,16 +91,20 @@ def augmentData(augment_type):
                 # imgplot = plt.imshow(img)
                 # plt.show()
 
-                augmented_path = pathlib.Path(os.path.join(augment_dir, ds_name))
-                original = cv2.imread(img_full_path, cv2.IMREAD_UNCHANGED)
+                augmented_path = pathlib.Path(os.path.join(da_dir, ds_name))
+                augmented_path = pathlib.Path(os.path.join(augmented_path, str(augment_type)))
                 
                 # Apply augmentation
                 if augment_type == "gaussian-noise":
-                    augmented = cv2.GaussianBlur(original, (5, 5), cv2.BORDER_DEFAULT)
+                    original = Image.open(img_full_path)
+                    arr = np.array(original)
+                    augmented = Image.fromarray(np.uint8(gaussian_filter(arr, sigma=2)))
                 elif augment_type == "rotation":
+                    original = cv2.imread(img_full_path)
                     transform = Compose([A.Rotate(limit=90, p=1)])
                     augmented = transform(image=original)['image']
                 elif augment_type == "translation":
+                    original = cv2.imread(img_full_path)
                     transform = Compose([A.ShiftScaleRotate(shift_limit=0.3, scale_limit=0, rotate_limit=0, p=1)])
                     augmented = transform(image=original)['image']
 
@@ -107,15 +113,18 @@ def augmentData(augment_type):
                 if not os.path.exists(augmented_path):
                     os.makedirs(augmented_path)
                 augmented_path = os.path.join(augmented_path, img_full_path.split("/")[-1])
-                cv2.imwrite(augmented_path, augmented)
+                if augment_type == "gaussian-noise":
+                    augmented.save(augmented_path)
+                else:
+                    cv2.imwrite(augmented_path, augmented)
 
                 # Display augmented image
                 # img = mpimg.imread(augmented_path)
                 # imgplot = plt.imshow(img)
                 # plt.show()
                                 
-                
+
 
 if __name__ == '__main__':
-    augmentData(augment_type = "rotation")
+    augmentData(augment_type = "gaussian-noise")
 

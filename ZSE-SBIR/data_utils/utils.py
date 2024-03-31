@@ -121,7 +121,11 @@ def get_file_list_iccv(args, rootpath, skim, split):
 
     with open(file_ls_file, 'r') as fh:
         file_content = fh.readlines()
-    file_ls = np.array([' '.join(ff.strip().split()[:-1]) for ff in file_content])
+    if args.test_augmentation is not None and ("sketch" in file_ls_file or "png_ready" in file_ls_file):
+        file_ls = np.array([args.test_augmentation + '/' + '/'.join(ff.strip().split('/')[-2:]) for ff in file_content])
+        file_ls = np.array([''.join(ff.strip().split()[:-1]) for ff in file_ls])
+    else:
+        file_ls = np.array([' '.join(ff.strip().split()[:-1]) for ff in file_content])
     labels = np.array([int(ff.strip().split()[-1]) for ff in file_content])
     file_names = np.array([(rootpath + x) for x in file_ls])
 
@@ -224,6 +228,10 @@ def remove_white_space_image(img_np: np.ndarray, padding: int):
     h, w, c = img_np.shape
     img_np_single = np.sum(img_np, axis=2)
     Y, X = np.where(img_np_single <= 300)  # max = 300
+    n = 310
+    while X.sum() == 0 or Y.sum() == 0:
+        Y, X = np.where(img_np_single <= n)
+        n += 10
     ymin, ymax, xmin, xmax = np.min(Y), np.max(Y), np.min(X), np.max(X)
     img_cropped = img_np[max(0, ymin - padding):min(h, ymax + padding), max(0, xmin - padding):min(w, xmax + padding),
                   :]

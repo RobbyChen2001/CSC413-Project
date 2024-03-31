@@ -37,6 +37,7 @@ class Option:
         parser.add_argument('--test_sk', type=int, default=20)
         parser.add_argument('--test_im', type=int, default=20)
         parser.add_argument('--num_workers', type=int, default=4)
+        parser.add_argument('--test_augmentation',type=str, default=None)
 
         # other
         parser.add_argument('--choose_cuda', '-c', type=str, default='0')
