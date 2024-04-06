@@ -3,3 +3,4 @@
 /ZSE-SBIR/checkpoints/sketchy_ext/best_checkpoint.pth
 /ZSE-SBIR/model/sam_ViT-B_16.pth
 dataset
+checkpoints
