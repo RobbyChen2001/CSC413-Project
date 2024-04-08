@@ -3,6 +3,7 @@ from torch import nn
 from einops import rearrange, repeat
 from .rn import Scale_Embedding
 import math
+import pathlib
 
 MIN_NUM_PATCHES = 16
 
@@ -195,7 +196,7 @@ class Self_Attention(nn.Module):
             modified_l_tok=modified_l_tok
         )
         if pretrained:
-            checkpoint = torch.load("/content/ZSE-SBIR/model/sam_ViT-B_16.pth")
+            checkpoint = torch.load(pathlib.Path(__file__).parent.resolve() / "sam_ViT-B_16.pth")
             cur = self.model.state_dict()
             new = {k: v for k, v in checkpoint.items() if k in cur.keys() and 'mlp_head' not in k}
             cur.update(new)

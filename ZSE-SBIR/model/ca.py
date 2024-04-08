@@ -156,8 +156,9 @@ class Cross_Attention(nn.Module):
         self.encoder = Encoder(encoderLayer, n)
 
     def forward(self, x):
-        length = x.size(0)
-        x_sk = x[:length // 2]
-        x_im = x[length // 2:]
-        x_im, x_sk = self.encoder(x_im, x_sk, None)  # 不要mask
-        return torch.cat((x_sk, x_im), dim=0)
+        # length = x.size(0)
+        # x_sk = x[:length // 2]
+        # x_im = x[length // 2:]
+        # x_im, x_sk = self.encoder(x_im, x_sk, None)  # 不要mask
+        # return torch.cat((x_sk, x_im), dim=0)
+        return x
