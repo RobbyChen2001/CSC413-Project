@@ -16,26 +16,23 @@ import sys
 
 
 def train():
+    train_data, sk_valid_data, im_valid_data = load_data(args)
 
-    with open('output.txt', 'w') as f:
-        # Put output to a file
-        sys.stdout = f
+    model = Model(args)
+    model = model.cuda()
 
-        train_data, sk_valid_data, im_valid_data = load_data(args)
+    # batch=15, lr=1e-5 / batch=30, lr=2e-5
+    optimizer = build_optimizer(args, model)
 
-        model = Model(args)
-        model = model.cuda()
+    train_data_loader = DataLoader(train_data, args.batch, num_workers=2, drop_last=True)
 
-        # batch=15, lr=1e-5 / batch=30, lr=2e-5
-        optimizer = build_optimizer(args, model)
+    start_epoch = 0
+    accuracy = 0
 
-        train_data_loader = DataLoader(train_data, args.batch, num_workers=2, drop_last=True)
-
-        start_epoch = 0
-        accuracy = 0
-
+    with open('output.txt', 'a') as ff:
         for i in range(start_epoch, args.epoch):
             print('------------------------train------------------------')
+            ff.write('------------------------train------------------------\n')
             epoch = i + 1
             model.train()
             torch.set_grad_enabled(True)
@@ -79,29 +76,39 @@ def train():
                     if args.without_rn_loss == False:
                         print(f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
                               f'tri:{losstri.item():.3f} rn:{lossrn.item():.3f}')
+                        ff.write(f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
+                              f'tri:{losstri.item():.3f} rn:{lossrn.item():.3f}\n')
                     else:
                         print(f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
                               f'tri:{losstri.item():.3f}')
+                        ff.write(f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
+                              f'tri:{losstri.item():.3f}\n')
 
             if epoch >= 10:
                 print('------------------------valid------------------------')
+                ff.write('------------------------valid------------------------\n')
                 # log
                 map_all, map_200, precision_100, precision_200 = valid_cls(args, model, sk_valid_data, im_valid_data)
                 print(f'map_all:{map_all:.4f} map_200:{map_200:.4f} precision_100:{precision_100:.4f} precision_200:{precision_200:.4f}')
+                ff.write(f'map_all:{map_all:.4f} map_200:{map_200: .4f} precision_100:{precision_100:.4f} precision_200:{precision_200:.4f}\n')
                 # save
                 if map_all > accuracy:
                     accuracy = map_all
                     precision = precision_100
                     print("Save the BEST {}th model......".format(epoch))
+                    ff.write("Save the BEST {}th model......\n".format(epoch))
                     save_checkpoint(
                         {'model': model.state_dict(), 'epoch': epoch, 'map_all': accuracy, 'precision_100': precision},
                         args.save, f'best_checkpoint')
 
 if __name__ == '__main__':
-    args = Option().parse()
-    print("train args:", str(args))
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.choose_cuda
-    print("current cuda: " + args.choose_cuda)
-    setup_seed(args.seed)
+    with open('output.txt', 'w') as f:
+        args = Option().parse()
+        print("train args:", str(args))
+        f.write(f"train args: {str(args)}\n")
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.choose_cuda
+        print("current cuda: " + args.choose_cuda)
+        f.write("current cuda: " + args.choose_cuda + '\n')
+        setup_seed(args.seed)
 
     train()
