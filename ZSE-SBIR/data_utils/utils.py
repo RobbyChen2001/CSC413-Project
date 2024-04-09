@@ -123,7 +123,7 @@ def get_file_list_iccv(args, rootpath, skim, split):
         file_content = fh.readlines()
     if args.test_augmentation is not None and ("sketch" in file_ls_file or "png_ready" in file_ls_file):
         file_ls = np.array([args.test_augmentation + '/' + '/'.join(ff.strip().split('/')[-2:]) for ff in file_content])
-        file_ls = np.array([''.join(ff.strip().split()[:-1]) for ff in file_ls])
+        file_ls = np.array([' '.join(ff.strip().split()[:-1]) for ff in file_ls])
     else:
         file_ls = np.array([' '.join(ff.strip().split()[:-1]) for ff in file_content])
     labels = np.array([int(ff.strip().split()[-1]) for ff in file_content])
