@@ -13,7 +13,7 @@ class Model(nn.Module):
         self.args = args
 
         self.sa = Self_Attention(d_model=args.d_model, cls_number=args.cls_number, pretrained=args.pretrained, l_tok_ablate=args.l_tok_ablate, modified_l_tok=args.modified_l_tok)
-        self.ca = Cross_Attention(args=args, h=args.head, n=args.number, d_model=args.d_model, d_ff=args.d_ff, dropout=0.1)
+        # self.ca = Cross_Attention(args=args, h=args.head, n=args.number, d_model=args.d_model, d_ff=args.d_ff, dropout=0.1)
         self.rn = Relation_Network(args.anchor_number, dropout=0.1)
         self.conv2d = nn.Conv2d(768, 512, 2, 2)
 
@@ -24,7 +24,7 @@ class Model(nn.Module):
 
             sk_im = torch.cat((sk, im), dim=0)
             sa_fea, left_tokens, idxs = self.sa(sk_im)  # [4b, 197, 768]
-            ca_fea = self.ca(sa_fea)  # [4b, 197, 768]
+            ca_fea = sa_fea  # [4b, 197, 768]
 
             cls_fea = ca_fea[:, 0]  # [4b, 1, 768]
             token_fea = ca_fea[:, 1:]  # [4b, 196, 768]
@@ -52,7 +52,7 @@ class Model(nn.Module):
                 return sa_fea, idxs
             else:
                 sk_im = torch.cat((sk, im), dim=0)
-                ca_fea = self.ca(sk_im)  # [2b, 197, 768]
+                ca_fea = sk_im  # [2b, 197, 768]
 
                 cls_fea = ca_fea[:, 0]  # [2b, 1, 768]
                 token_fea = ca_fea[:, 1:]  # [2b, 196, 768]
