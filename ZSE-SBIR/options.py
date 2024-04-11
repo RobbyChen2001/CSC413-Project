@@ -30,6 +30,7 @@ class Option:
         parser.add_argument('--learning_rate', type=float, default=1e-5)
         parser.add_argument('--weight_decay', type=float, default=1e-2)
         parser.add_argument('--without_rn_loss',type=bool, default=False)
+        parser.add_argument('--without_triplet_loss', type=bool, default=False)
 
         # test
         parser.add_argument('--load', '-l', type=str, default=None)
