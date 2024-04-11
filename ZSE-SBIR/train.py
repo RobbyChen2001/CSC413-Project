@@ -55,14 +55,14 @@ def train():
                 cls_fea, rn_scores = model(sk, im)
 
                 # loss
-                losstri = triplet_loss(cls_fea, args)  # The initial value of losstri should be around 1.00.
-                lossrn = rn_loss(rn_scores, target_rn) # The initial value of lossrn should be around 1.00.
+                losstri = triplet_loss(cls_fea, args) * 2  # The initial value of losstri should be around 1.00.
+                lossrn = rn_loss(rn_scores, target_rn) * 4  # The initial value of lossrn should be around 1.00.
                 if args.without_rn_loss == True:
-                    loss = losstri * 2
+                    loss = losstri
                 elif args.without_triplet_loss == True:
-                    loss = lossrn * 4
+                    loss = lossrn
                 else:
-                    loss = losstri * 2 + lossrn * 4
+                    loss = losstri + lossrn
 
                 # backward
                 loss.backward()
@@ -76,14 +76,20 @@ def train():
                     remaining_time = time_per_step * (num_total_steps - step)
                     remaining_time = time.strftime('%H:%M:%S', time.gmtime(remaining_time))
                     if args.without_rn_loss == True:
-                        print(f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
-                              f'tri:{losstri.item():.3f}')
+                        print(
+                                f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
+                                f'tri:{losstri.item():.3f}'
+                        )
                     elif args.without_triplet_loss == True:
-                        print(f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
-                              f'rn:{lossrn.item():.3f}')
+                        print(
+                                f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
+                                f'rn:{lossrn.item():.3f}'
+                        )
                     else:
-                        print(f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
-                              f'tri:{losstri.item():.3f} rn:{lossrn.item():.3f}')
+                        print(
+                                f'epoch_{epoch} step_{step} eta {remaining_time}: loss:{loss.item():.3f} '
+                                f'tri:{losstri.item():.3f} rn:{lossrn.item():.3f}'
+                        )
 
             if epoch >= 10:
                 print('------------------------valid------------------------')
@@ -100,7 +106,9 @@ def train():
                     ff.write("Save the BEST {}th model......\n".format(epoch))
                     save_checkpoint(
                             {'model': model.state_dict(), 'epoch': epoch, 'map_all': accuracy, 'precision_100': precision},
-                            args.save, f'best_checkpoint')
+                            args.save, f'best_checkpoint'
+                    )
+
 
 if __name__ == '__main__':
     with open('output.txt', 'w') as f:
