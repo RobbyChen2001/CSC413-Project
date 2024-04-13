@@ -12,7 +12,7 @@ class Model(nn.Module):
 
         self.args = args
 
-        self.sa = Self_Attention(d_model=args.d_model, cls_number=args.cls_number, pretrained=args.pretrained)
+        self.sa = Self_Attention(d_model=args.d_model, cls_number=args.cls_number, pretrained=args.pretrained, l_tok_ablate = args.l_tok_ablate)
         self.ca = Cross_Attention(args=args, h=args.head, n=args.number, d_model=args.d_model, d_ff=args.d_ff, dropout=0.1)
         self.rn = Relation_Network(args.anchor_number, dropout=0.1)
         self.conv2d = nn.Conv2d(768, 512, 2, 2)

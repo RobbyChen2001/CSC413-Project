@@ -135,7 +135,7 @@ class Encoder(nn.Module):
 
 class ViTPatch(nn.Module):
     def __init__(self, *, image_size, patch_size, hidden_size, num_classes, depth, heads,
-                 mlp_dim, channels=3, dropout=0., emb_dropout=0.):
+                 mlp_dim, channels=3, dropout=0., emb_dropout=0., l_tok_ablate):
         super().__init__()
         assert image_size % patch_size == 0, 'image dimensions must be divisible by the patch size'
         num_patches = (image_size // patch_size) ** 2
@@ -152,11 +152,16 @@ class ViTPatch(nn.Module):
         self.transformer = Encoder(hidden_size, depth, heads, mlp_dim, dropout_rate=dropout)
         self.to_cls_token = nn.Identity()
         # self.mlp_head = nn.Linear(hidden_size, num_classes)
+        
+        self.l_tok_ablate = l_tok_ablate
 
     def forward(self, img, mask=None):
-        x1 = self.embedding(img)
-        x2 = self.scale(img)
-        x = (x1 + x2) / 2
+        if not self.l_tok_ablate:
+            x1 = self.embedding(img)
+            x2 = self.scale(img)
+            x = (x1 + x2) / 2
+        else:
+            x = self.embedding(img)
 
         x = rearrange(x, 'b c h w  -> b (h w) c')
         b, n, _ = x.shape
@@ -174,7 +179,7 @@ class ViTPatch(nn.Module):
 
 
 class Self_Attention(nn.Module):
-    def __init__(self, d_model=768, cls_number=100, pretrained=True):
+    def __init__(self, d_model=768, cls_number=100, pretrained=True, l_tok_ablate=False):
         super(Self_Attention, self).__init__()
         self.model = ViTPatch(
             image_size=224,
@@ -185,7 +190,8 @@ class Self_Attention(nn.Module):
             heads=12,
             mlp_dim=3072,
             dropout=0.1,
-            emb_dropout=0.1
+            emb_dropout=0.1,
+            l_tok_ablate=l_tok_ablate
         )
         if pretrained:
             checkpoint = torch.load("/content/ZSE-SBIR/model/sam_ViT-B_16.pth")
