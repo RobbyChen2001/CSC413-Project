@@ -32,6 +32,7 @@ class Option:
         parser.add_argument('--without_rn_loss',type=bool, default=False)
         parser.add_argument('--without_triplet_loss', type=bool, default=False)
         parser.add_argument('--l_tok_ablate', type=bool, default=False)
+        parser.add_argument('--modified_l_tok', type=bool, default=False)
 
         # test
         parser.add_argument('--load', '-l', type=str, default=None)
