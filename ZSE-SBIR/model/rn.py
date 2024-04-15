@@ -71,9 +71,9 @@ class Scale_Embedding(nn.Module):
             )
         else:
             self.seq = nn.Sequential(
-                nn.Conv2d(3, 256, 7, 2, 3, bias=False),
+                nn.Conv2d(3, 256, 11, 4, 5, bias=False),
                 nn.ReLU(inplace=True),
-                nn.Conv2d(256, 768, 3, 2, 1, bias=False),
+                nn.Conv2d(256, 768, 5, 4, 2, bias=False),
             )
 
     def forward(self, x):
